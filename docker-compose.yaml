@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+
+  redis-json:
+    hostname: redis-json
+    container_name: redis-json
+    image: redislabs/redismod
+    command:
+      - "/usr/local/etc/redis/redis.conf"
+    volumes:
+      - ./redis_json.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - redis-hacker-news
+
+  redis-search:
+    hostname: redis-search
+    container_name: redis-search
+    image: redislabs/redismod
+    command:
+      - "/usr/local/etc/redis/redis.conf"
+    volumes:
+      - ./redis_search.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - redis-hacker-news
+
+  hacker-news:
+    hostname: hacker-news
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    container_name: hacker-news
+    depends_on:
+     - redis-json
+     - redis-search
+    networks:
+      - redis-hacker-news
+
+networks:
+  redis-hacker-news:
+    driver: bridge
